@@ -56,7 +56,7 @@ make all        # extract, load, dbt build, export (DuckDB)
 make serve      # http://localhost:8000
 ```
 
-On Snowflake (key-pair sign-in, database `CLOVERFIELD`):
+On Snowflake (key-pair sign-in, database `CLOVERFIELD`). Verified Oct 9 2026: all raw tables loaded, all 46 dbt nodes pass, and the exported status matches DuckDB (Degraded, 5 alerts).
 
 ```
 python ingest/load_snowflake.py --duckdb warehouse/cloverfield.duckdb --database CLOVERFIELD --schemas raw_github,raw_cloverleaf
