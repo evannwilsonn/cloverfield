@@ -1,0 +1,15 @@
+version: 2
+seeds:
+  - name: monitored_workflows
+    description: The workflows Cloverfield watches and their schedules (period and offset in seconds, matching the cron).
+    columns:
+      - name: workflow_file
+        data_tests: [unique]
+  - name: slos
+    columns:
+      - name: slo_id
+        data_tests: [unique]
+  - name: alert_rules
+    columns:
+      - name: alert_id
+        data_tests: [unique]

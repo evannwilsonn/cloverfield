@@ -1,0 +1,15 @@
+version: 2
+sources:
+  - name: raw_github
+    description: GitHub Actions history for the monitored repo, landed unchanged by ingest/load_raw.py.
+    tables:
+      - name: workflow_runs
+      - name: jobs
+      - name: job_steps
+      - name: extract_log
+        description: When the extract ran. Every age and "last 24 hours" window is measured from this, not from the build time.
+  - name: raw_cloverleaf
+    description: Cloverleaf's own output, read from its data branch.
+    tables:
+      - name: captures
+      - name: dbt_results

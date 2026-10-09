@@ -1,0 +1,45 @@
+name: cloverfield
+version: "1.0.0"
+config-version: 2
+profile: cloverfield
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  cloverfield:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: table
+      +schema: intermediate
+    marts:
+      +materialized: table
+      core:
+        +schema: core
+      reporting:
+        +schema: reporting
+
+seeds:
+  cloverfield:
+    +schema: reference
+    monitored_workflows:
+      +column_types: {period_seconds: bigint, offset_seconds: bigint, schedule_live_from: timestamp}
+
+vars:
+  # a camera feed counts as "no picture" with the same thresholds Cloverleaf's rules use
+  min_brightness: 12
+  min_contrast: 12
+  frozen_motion: 0.15
+  # alert thresholds (seeds/alert_rules.csv describes each alert)
+  stale_after_minutes: 75
+  camera_down_after_captures: 6        # consecutive captures without a live picture (~3 hours)
+  failed_runs_window_hours: 6
+  failed_runs_threshold: 2
+  missed_slots_window_hours: 24
+  missed_slots_threshold: 3

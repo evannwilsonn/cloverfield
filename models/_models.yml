@@ -1,0 +1,65 @@
+version: 2
+models:
+  - name: stg_workflow_runs
+    description: One row per GitHub Actions workflow run of the monitored repo.
+    data_tests:
+      - unique_combination: {arguments: {columns: [run_id, run_attempt]}}
+    columns:
+      - name: workflow_file
+        data_tests:
+          - relationships: {arguments: {to: ref('monitored_workflows'), field: workflow_file}}
+      - name: event
+        data_tests:
+          - accepted_values: {arguments: {values: [schedule, workflow_dispatch, push]}}
+  - name: stg_captures
+    description: Cloverleaf collector output (one row per camera per collector run).
+    data_tests:
+      - unique_combination: {arguments: {columns: [collector_run_id, camera_id]}}
+    columns:
+      - name: stream_status
+        data_tests:
+          - accepted_values: {arguments: {values: [ok, offline, error]}}
+  - name: fct_schedule_slots
+    description: Every scheduled slot and whether a run started for it on time, late, or not at all.
+    data_tests:
+      - unique_combination: {arguments: {columns: [workflow_file, slot_at]}}
+    columns:
+      - name: slot_outcome
+        data_tests:
+          - accepted_values: {arguments: {values: [on_time, late, missed, pending]}}
+      - name: start_delay_minutes
+        description: Minutes between the scheduled time and when GitHub created the run.
+        data_tests:
+          - value_between: {arguments: {min_value: 0, max_value: 1440}}
+  - name: fct_workflow_runs
+    columns:
+      - name: duration_minutes
+        data_tests:
+          - value_between: {arguments: {min_value: 0, max_value: 360}}
+  - name: fct_camera_captures
+    columns:
+      - name: feed_state
+        data_tests:
+          - not_null
+          - accepted_values: {arguments: {values: [live, offline, unreadable, no_picture, frozen]}}
+  - name: rpt_slo
+    data_tests:
+      - unique_combination: {arguments: {columns: [slo_id, window_name]}}
+    columns:
+      - name: value
+        data_tests:
+          - value_between: {arguments: {min_value: 0, max_value: 1}}
+  - name: rpt_alerts
+    columns:
+      - name: severity
+        data_tests:
+          - accepted_values: {arguments: {values: [critical, warning]}}
+  - name: rpt_status_now
+    columns:
+      - name: overall
+        data_tests:
+          - accepted_values: {arguments: {values: [healthy, degraded, down]}}
+  - name: rpt_camera_uptime
+    columns:
+      - name: camera_id
+        data_tests: [unique]

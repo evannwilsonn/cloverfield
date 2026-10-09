@@ -1,0 +1,6 @@
+slo_id,slo_name,description,target,direction
+collect_on_time,Collector on schedule,Scheduled 30-minute slots where a collector run started within 15 minutes,0.90,higher
+collect_success,Collector succeeds,Collector runs that finished successfully,0.98,higher
+collect_fast,Collector finishes in time,Collector runs that finished within 15 minutes,0.95,higher
+camera_uptime,Cameras delivering a picture,Camera captures with a live picture (not offline / unreadable / placeholder / frozen),0.85,higher
+data_fresh,Fresh data every hour,Hours in which at least one camera delivered a live picture,0.95,higher

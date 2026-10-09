@@ -1,0 +1,71 @@
+# Hourly, after Cloverleaf's :37 collector run: read GitHub's run history and Cloverleaf's data
+# branch, rebuild the monitoring models, and publish the status page to GitHub Pages.
+# Every 6th hour the build runs on Snowflake (database CLOVERFIELD) when these secrets exist:
+# SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER, SNOWFLAKE_PRIVATE_KEY. Other hours use DuckDB, which is free.
+name: monitor
+on:
+  schedule:
+    - cron: "52 * * * *"
+  workflow_dispatch:
+    inputs:
+      target: {description: "duckdb or snowflake", default: "duckdb"}
+permissions:
+  contents: read
+  actions: read
+  pages: write
+  id-token: write
+concurrency:
+  group: monitor
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_ROLE: SYSADMIN
+      SNOWFLAKE_WAREHOUSE: PORTFOLIO_WH
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - uses: actions/cache@v4
+        with:
+          path: data/raw/github/jobs
+          key: jobs-${{ github.run_id }}
+          restore-keys: jobs-
+      - name: Choose the warehouse
+        run: |
+          T="${{ github.event.inputs.target }}"
+          if [ -z "$T" ]; then T=duckdb; [ $(( $(date -u +%-H) % 6 )) -eq 0 ] && T=snowflake; fi
+          [ -z "$SNOWFLAKE_ACCOUNT" ] && T=duckdb
+          echo "TARGET=$T" >> "$GITHUB_ENV"; echo "Building on $T"
+      - run: pip install -r requirements.txt
+      - if: env.TARGET == 'snowflake'
+        run: |
+          pip install dbt-snowflake snowflake-connector-python
+          mkdir -p ~/.snowflake && printf '%s\n' "${{ secrets.SNOWFLAKE_PRIVATE_KEY }}" > ~/.snowflake/rsa_key.p8 && chmod 600 ~/.snowflake/rsa_key.p8
+          echo "SNOWFLAKE_PRIVATE_KEY_PATH=$HOME/.snowflake/rsa_key.p8" >> "$GITHUB_ENV"
+      - name: Extract and land
+        run: |
+          python ingest/extract.py
+          python ingest/load_raw.py
+      - if: env.TARGET == 'snowflake'
+        run: python ingest/load_snowflake.py --duckdb warehouse/cloverfield.duckdb --database CLOVERFIELD --schemas raw_github,raw_cloverleaf
+      - name: dbt build
+        run: dbt build --profiles-dir . --target ${{ env.TARGET == 'snowflake' && 'snowflake' || 'dev' }}
+      - name: Export the status page
+        run: |
+          python dashboard/export_data.py --target ${{ env.TARGET }}
+          mkdir -p site && cp dashboard/index.html dashboard/data.json site/
+      - uses: actions/upload-pages-artifact@v3
+        with: {path: site}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: {name: github-pages, url: "${{ steps.deployment.outputs.page_url }}"}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

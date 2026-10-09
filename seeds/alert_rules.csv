@@ -1,0 +1,6 @@
+alert_id,severity,alert_name,description
+data_stale,critical,Data is stale,No new camera capture has landed for longer than the staleness limit
+collect_failing,critical,Collector failing,Several collector runs failed within the recent window
+build_failed,critical,Daily build failed,The latest Cloverleaf dbt build had a failing test or a model error
+camera_down,warning,Camera down,A camera has gone several captures in a row without a live picture
+schedule_gaps,warning,Missed schedule slots,GitHub skipped or badly delayed several scheduled collector runs in the last day

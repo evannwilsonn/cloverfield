@@ -1,0 +1,10 @@
+data/
+warehouse/
+target/
+dbt_packages/
+logs/
+site/
+__pycache__/
+.venv/
+*.p8
+.impeccable/
