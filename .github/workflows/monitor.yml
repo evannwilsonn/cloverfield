@@ -1,5 +1,5 @@
 # Hourly, after Cloverleaf's :37 collector run: read GitHub's run history and Cloverleaf's data
-# branch, rebuild the monitoring models, and publish the status page to GitHub Pages.
+# branch, rebuild the monitoring models, and publish the status page (to GitHub Pages when PAGES_ENABLED=true).
 # Every 6th hour the build runs on Snowflake (database CLOVERFIELD) when these secrets exist:
 # SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER, SNOWFLAKE_PRIVATE_KEY. Other hours use DuckDB, which is free.
 name: monitor
@@ -61,8 +61,14 @@ jobs:
           python dashboard/export_data.py --target ${{ env.TARGET }}
           mkdir -p site && cp dashboard/index.html dashboard/data.json site/
       - uses: actions/upload-pages-artifact@v3
+        if: vars.PAGES_ENABLED == 'true'
         with: {path: site}
+      - uses: actions/upload-artifact@v4
+        with: {name: status-page, path: site, retention-days: 3}
   deploy:
+    # off until Pages is turned on (Settings -> Pages -> GitHub Actions) and the repository
+    # variable PAGES_ENABLED is set to true, so a missing setting never fails the hourly run
+    if: vars.PAGES_ENABLED == 'true'
     needs: build
     runs-on: ubuntu-latest
     environment: {name: github-pages, url: "${{ steps.deployment.outputs.page_url }}"}
