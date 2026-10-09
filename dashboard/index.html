@@ -5,190 +5,380 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Cloverfield</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700;800&family=Overpass+Mono:wght@400;500;600&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <style>
-/* Layout: a status page. One verdict at the top, then what is firing, then the objectives, then the evidence (schedule, runs, cameras, builds). */
+/* dark-first: the control-room wall is the world; light mode is the same wall under daylight */
 :root{
-  color-scheme:light;
-  --bg:#f1f3f2;--surface:#ffffff;--surface-2:#f6f8f7;--line:#dde3e0;--line-2:#c9d1cd;
-  --text:#121816;--text-2:#46504c;--text-3:#6f7a76;
-  --sign:#0b6b3f;--sign-ink:#ffffff;
-  --s1:#2a6fdb;
-  --ok:#16865a;--ok-bg:rgba(22,134,90,.10);--warn:#a8630f;--warn-bg:rgba(168,99,15,.12);--bad:#c2412d;--bad-bg:rgba(194,65,45,.10);
-  --idle:#c9d1cd;--dark:rgba(18,24,22,.18);--focus:#2a6fdb;
-  --font:"Overpass",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"Overpass Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+  --wall:#0a0c0d;--bezel:#131719;--frame:#1d2326;--seam:#2a3236;--seam-2:#3a454a;
+  --ink:#e8edef;--ink-2:#b6c0c5;--ink-3:#86939a;
+  --live:#3fcf86;--live-dim:#1f5d40;--nopic:#e8b04a;--off:#ff6b57;--off-dim:#5a231c;
+  --cal:#ff8a1f;--cal-ink:#1a0f02;--cal-dim:#3a2208;
+  --ok-bg:#12301f;--warn-bg:#3a2a0e;--bad-bg:#3c1712;
+  --sel:#2a4a3a;--dark-screen:#0e1112;--dark-ink:#e8edef;
+  --sign:"Barlow Semi Condensed","Barlow",ui-sans-serif,system-ui,sans-serif;
+  --text:"Barlow",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  color-scheme:dark;--bg:#0b0f0d;--surface:#121816;--surface-2:#18201d;--line:#232d29;--line-2:#303c37;
-  --text:#eef2f0;--text-2:#b3bdb8;--text-3:#86918c;--sign:#148a55;--s1:#3d7eff;
-  --ok:#4cc38a;--ok-bg:rgba(76,195,138,.12);--warn:#e0a24a;--warn-bg:rgba(224,162,74,.13);--bad:#ff7a6b;--bad-bg:rgba(255,122,107,.12);
-  --idle:#33403a;--dark:rgba(0,0,0,.35);--focus:#7ea8ff}}
-:root[data-theme="dark"]{
-  color-scheme:dark;--bg:#0b0f0d;--surface:#121816;--surface-2:#18201d;--line:#232d29;--line-2:#303c37;
-  --text:#eef2f0;--text-2:#b3bdb8;--text-3:#86918c;--sign:#148a55;--s1:#3d7eff;
-  --ok:#4cc38a;--ok-bg:rgba(76,195,138,.12);--warn:#e0a24a;--warn-bg:rgba(224,162,74,.13);--bad:#ff7a6b;--bad-bg:rgba(255,122,107,.12);
-  --idle:#33403a;--dark:rgba(0,0,0,.35);--focus:#7ea8ff}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  color-scheme:light;--wall:#e9edef;--bezel:#f6f8f9;--frame:#ffffff;--seam:#d3dade;--seam-2:#b8c2c7;
+  --ink:#101416;--ink-2:#3f4a50;--ink-3:#5d6a71;
+  --live:#147a4c;--live-dim:#cfeadc;--nopic:#9a6400;--off:#c0392b;--off-dim:#e2988c;
+  --cal:#b35500;--cal-ink:#ffffff;--cal-dim:#fde4cc;--ok-bg:#dcefe5;--warn-bg:#f8ead0;--bad-bg:#f7dcd8;--sel:#cfe7da;--dark-screen:#edf1f3}}
+:root[data-theme="light"]{
+  color-scheme:light;--wall:#e9edef;--bezel:#f6f8f9;--frame:#ffffff;--seam:#d3dade;--seam-2:#b8c2c7;
+  --ink:#101416;--ink-2:#3f4a50;--ink-3:#5d6a71;
+  --live:#147a4c;--live-dim:#cfeadc;--nopic:#9a6400;--off:#c0392b;--off-dim:#e2988c;
+  --cal:#b35500;--cal-ink:#ffffff;--cal-dim:#fde4cc;--ok-bg:#dcefe5;--warn-bg:#f8ead0;--bad-bg:#f7dcd8;--sel:#cfe7da;--dark-screen:#edf1f3}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--font)}
-:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
-.wrap{max-width:1240px;margin:0 auto;padding-block:22px 48px;padding-inline:20px}
-header.top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
-.brand{display:flex;align-items:center;gap:12px}
-.mark{font:800 21px/1 var(--font);letter-spacing:.01em}
-.mark span{color:var(--text-3);font-weight:600;font-size:14px;margin-left:8px}
-.meta{font:500 12px var(--mono);color:var(--text-3);text-align:right}
-.verdict{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:12px;border-left:6px solid var(--ok)}
-.verdict.degraded{border-left-color:var(--warn)}.verdict.down{border-left-color:var(--bad)}
-.verdict .word{font:800 26px/1 var(--font);text-transform:capitalize}
-.verdict.healthy .word{color:var(--ok)}.verdict.degraded .word{color:var(--warn)}.verdict.down .word{color:var(--bad)}
-.verdict p{margin:0;color:var(--text-2);font-size:14.5px}
-.verdict b{color:var(--text);font-weight:700}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
-.card header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-.card h2{margin:0;font-size:16px;font-weight:700}
-.sub{font-size:12.5px;color:var(--text-3)}
-.full{grid-column:1/-1}
-.pill{display:inline-flex;align-items:center;gap:6px;font:700 11.5px var(--font);border-radius:999px;padding:2px 9px;white-space:nowrap}
-.pill.ok{color:var(--ok);background:var(--ok-bg)}.pill.warn{color:var(--warn);background:var(--warn-bg)}.pill.bad{color:var(--bad);background:var(--bad-bg)}.pill.na{color:var(--text-3);background:var(--surface-2)}
-.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
-.alerts{display:flex;flex-direction:column;gap:8px}
-.alert{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2)}
-.alert .what{font-weight:700;font-size:14px}.alert .d{font-size:13px;color:var(--text-2)}
-.alert .since{font:12px var(--mono);color:var(--text-3);text-align:right}
-.calm{color:var(--text-2);font-size:14px;padding:6px 0}
-.tbl{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13.5px}
-th{font-weight:600;color:var(--text-3);text-align:right;padding:8px 6px;border-bottom:1px solid var(--line);font-size:12px;white-space:nowrap}
-th:first-child,td:first-child{text-align:left}
-td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-td .desc{display:block;font-size:12px;color:var(--text-3);white-space:normal;max-width:46ch}
-.meter{display:inline-block;width:90px;height:8px;background:var(--surface-2);border-radius:2px;position:relative;vertical-align:0;margin-right:8px;overflow:visible}
-.meter i{position:absolute;inset:0 auto 0 0;border-radius:2px}
-.meter b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--text)}
-.strip{display:flex;gap:2px;align-items:flex-end;height:58px;padding-top:4px}
-.strip span{flex:1;min-width:3px;border-radius:2px;position:relative}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--text-2);margin-top:8px}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
-.camgrid{display:grid;grid-template-columns:76px minmax(0,1fr) 64px;gap:4px 10px;align-items:center;font-size:12.5px}
-.camgrid .id{font:600 12px var(--mono)}
-.camgrid .cells{display:flex;gap:2px}
-.camgrid .cells span{flex:1;height:14px;border-radius:2px;min-width:2px}
-.camgrid .pct{text-align:right;font:12px var(--mono);color:var(--text-2)}
-.plot{position:relative}.plot svg{display:block;width:100%;height:auto;overflow:visible}
-.ax{font:11px var(--mono);fill:var(--text-3)}.gridl{stroke:var(--line)}
-.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line-2);border-radius:8px;padding:7px 10px;font-size:12.5px;white-space:nowrap;opacity:0;transform:translate(-50%,calc(-100% - 10px));transition:opacity .1s;z-index:3;box-shadow:0 8px 24px rgba(0,0,0,.18)}
-.tip.on{opacity:1}
-footer{margin-top:18px;font-size:12.5px;color:var(--text-3);line-height:1.6;max-width:110ch}
-footer a{color:var(--text-2)}
-@media (max-width:860px){.grid{grid-template-columns:1fr}}
-@media (max-width:520px){.verdict{grid-template-columns:1fr}.alert{grid-template-columns:1fr}.alert .since{text-align:left}.meta{text-align:left}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+html{scrollbar-color:var(--seam-2) var(--wall)}
+body{margin:0;background:var(--wall);color:var(--ink);font:15px/1.5 var(--text);-webkit-font-smoothing:antialiased}
+::selection{background:var(--sel);color:var(--ink)}
+:focus-visible{outline:2px solid var(--cal);outline-offset:2px;border-radius:2px}
+a{color:inherit;text-underline-offset:3px;text-decoration-color:var(--seam-2)}
+a:hover{text-decoration-color:currentColor}
+.wall{max-width:1400px;margin:0 auto;padding-inline:clamp(12px,2.4vw,28px);padding-block:clamp(12px,2vw,22px) 48px}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;background:var(--bezel);border:1px solid var(--seam)}
+.head .id{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.head .name{font:800 22px/1 var(--sign);letter-spacing:.02em;text-transform:uppercase}
+.head .sub{font:500 14px var(--sign);color:var(--ink-3);letter-spacing:.02em}
+.clock{font:500 13px var(--mono);color:var(--ink-2);text-align:right}
+.clock b{color:var(--ink);font-weight:700}
+.top{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:10px;margin-top:10px}
+.panel{background:var(--bezel);border:1px solid var(--seam);min-width:0}
+.panel>h2,.wall h2{font:700 13px var(--sign);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:0;padding:10px 14px;border-bottom:1px solid var(--seam);display:flex;justify-content:space-between;gap:10px}
+.panel>h2 span{font:500 12px var(--mono);letter-spacing:0;text-transform:none;color:var(--ink-3)}
+.verdict{padding:18px 16px 16px;display:grid;gap:10px}
+.verdict .word{font:800 clamp(56px,8vw,104px)/.85 var(--sign);letter-spacing:-.01em;text-transform:uppercase;display:flex;align-items:center;gap:14px}
+.verdict .word i{display:inline-block;width:.36em;height:.36em;border-radius:50%;background:currentColor}
+.verdict.down .word{color:var(--off)}.verdict.degraded .word{color:var(--nopic)}.verdict.healthy .word{color:var(--live)}
+.verdict.down .word i{animation:blink 1.6s steps(2,start) infinite}
+@keyframes blink{to{visibility:hidden}}
+.verdict p{margin:0;font-size:16px;color:var(--ink-2);max-width:52ch}
+.verdict p b{color:var(--ink);font-weight:600}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--seam)}
+.facts div{padding:10px 14px;border-right:1px solid var(--seam);min-width:0}
+.facts div:last-child{border-right:0}
+.facts dt{font:600 11.5px var(--sign);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.facts dd{margin:2px 0 0;font:700 20px var(--mono);font-variant-numeric:tabular-nums}
+.facts dd small{display:block;font:500 12px var(--mono);color:var(--ink-3)}
+.board{display:flex;flex-direction:column}
+.band{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--seam)}
+.band:last-child{border-bottom:0}
+.band .sev{font:800 13px var(--sign);letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:2px}
+.band.critical .sev{background:var(--cal);color:var(--cal-ink)}
+.band.warning .sev{background:transparent;color:var(--cal);box-shadow:inset 0 0 0 2px var(--cal)}
+.band .msg{font:600 17px/1.3 var(--sign);letter-spacing:.01em}
+.band .msg small{display:block;font:400 14px var(--text);color:var(--ink-2);letter-spacing:0;margin-top:2px}
+.band .since{font:500 12.5px var(--mono);color:var(--ink-3);text-align:right;white-space:nowrap}
+.clear{display:grid;gap:0;padding:6px 0 4px;border-top:1px solid var(--seam)}
+.cl-h{font:700 11.5px var(--sign);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:6px 14px 2px}
+.cl{display:grid;grid-template-columns:14px minmax(0,1fr);column-gap:10px;padding:6px 14px;font:600 14.5px var(--sign);letter-spacing:.01em;color:var(--ink-2)}
+.cl b{font:800 11.5px var(--sign);letter-spacing:.08em;text-transform:uppercase;color:var(--live);margin-right:8px}
+.cl{grid-template-columns:minmax(0,1fr) auto}
+.cl em{font:500 12.5px var(--mono);font-style:normal;color:var(--ink-3);text-align:right;white-space:nowrap}
+.cl small{grid-column:2;font:400 13px var(--text);color:var(--ink-3);letter-spacing:0}
+.board{flex:1}
+.top .panel{display:flex;flex-direction:column}
+.calm{padding:18px 14px;color:var(--ink-2);font-size:15px}
+.calm b{color:var(--live)}
+
+.section{margin-top:10px}
+.cams{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:6px;background:var(--bezel);border:1px solid var(--seam)}
+.tile{position:relative;display:flex;flex-direction:column;min-width:0;background:var(--frame);border:0;padding:0;text-align:left;color:inherit;font:inherit;cursor:pointer;outline-offset:-2px}
+.tile .screen{position:relative;aspect-ratio:16/8;display:flex;flex-direction:column;justify-content:space-between;padding:10px 11px;overflow:hidden}
+.tile .screen::before{content:"";position:absolute;inset:0;pointer-events:none}
+.tile.live .screen{box-shadow:inset 0 0 0 2px var(--live)}
+.tile.dark .screen{background:var(--dark-screen)}
+.tile.nopic .screen{box-shadow:inset 0 0 0 2px var(--nopic)}
+.tile.nopic .screen::before{background:repeating-linear-gradient(135deg,transparent 0 7px,color-mix(in srgb,var(--nopic) 22%,transparent) 7px 9px)}
+.tile.off .screen{box-shadow:inset 0 0 0 2px var(--off-dim)}
+.tile.off .screen::before{background:linear-gradient(to top right,transparent calc(50% - 1px),var(--off) calc(50% - 1px) calc(50% + 1px),transparent calc(50% + 1px))}
+.tile.off .screen::before{opacity:.5}
+.tile.off .cam,.tile.off .nm,.tile.off .st>*{background:var(--frame);padding-inline:3px;margin-inline:-3px;width:fit-content}
+.tile .cam{position:relative;font:700 12.5px var(--mono);color:var(--ink-3)}
+.tile .nm{position:relative;font:700 16px/1.15 var(--sign);letter-spacing:.01em}
+.tile .st{position:relative;display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.tile .st b{font:800 14px var(--sign);letter-spacing:.08em;text-transform:uppercase}
+.tile.live b{color:var(--live)}.tile.nopic b{color:var(--nopic)}.tile.off b{color:var(--off)}
+.tile .st span{font:500 12px var(--mono);color:var(--ink-2)}
+.tape{display:flex;gap:1px;height:9px;padding:0 1px 1px}
+.tape i{flex:1;min-width:1px}
+.tape i.live{background:var(--live)}.tape i.dark{background:color-mix(in srgb,var(--live) 45%,var(--frame))}.tape i.nopic{background:var(--nopic)}.tape i.off{background:var(--off)}.tape i.none{background:var(--seam)}
+.tile:hover .screen,.tile:focus-visible .screen{background:color-mix(in srgb,var(--ink) 6%,var(--frame))}
+.tile.dark:hover .screen{background:color-mix(in srgb,var(--ink) 6%,var(--dark-screen))}
+.tile[aria-expanded="true"]{outline:2px solid var(--cal)}
+.tile .osd{position:absolute;right:11px;top:10px;font:500 11.5px var(--mono);color:var(--ink-3)}
+.detail{grid-column:1/-1;background:var(--frame);border:1px solid var(--cal);padding:12px 14px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px 16px}
+.detail h3{grid-column:1/-1;margin:0;font:700 17px var(--sign);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.detail h3 span{font:500 12.5px var(--mono);color:var(--ink-3)}
+.detail dt{font:600 11.5px var(--sign);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.detail dd{margin:2px 0 0;font:700 17px var(--mono)}
+.key{display:flex;flex-wrap:wrap;gap:6px 18px;padding:9px 14px;font-size:13.5px;color:var(--ink-2);background:var(--bezel);border:1px solid var(--seam);border-top:0}
+.key span{display:inline-flex;align-items:center;gap:7px}
+.sw{display:inline-block;width:18px;height:12px;background:var(--frame)}
+.sw.live{box-shadow:inset 0 0 0 2px var(--live)}
+.sw.nopic{box-shadow:inset 0 0 0 2px var(--nopic);background:repeating-linear-gradient(135deg,var(--frame) 0 3px,color-mix(in srgb,var(--nopic) 40%,var(--frame)) 3px 4px)}
+.sw.off{box-shadow:inset 0 0 0 2px var(--off-dim);background:linear-gradient(to top right,transparent calc(50% - 1px),var(--off) calc(50% - 1px) calc(50% + 1px),transparent calc(50% + 1px)),var(--frame)}
+.sw.dark{box-shadow:inset 0 0 0 2px var(--live);background:var(--dark-screen)}
+
+.lower{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:10px;margin-top:10px}
+.slots{list-style:none;margin:0;padding:0;font:500 14px var(--mono)}
+.slots li{display:grid;grid-template-columns:5.5ch minmax(0,1fr) auto;gap:12px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--seam)}
+.slots li:last-child{border-bottom:0}
+.slots .t{font-weight:700;color:var(--ink)}
+.slots .what{font:500 14px var(--text);color:var(--ink-2);min-width:0}
+.slots .tag{font:800 12.5px var(--sign);letter-spacing:.08em;text-transform:uppercase;padding:2px 8px}
+.slots .on_time .tag{color:var(--live);box-shadow:inset 0 0 0 1.5px var(--live)}
+.slots .late .tag{color:var(--nopic);box-shadow:inset 0 0 0 1.5px var(--nopic)}
+.slots .missed .tag{color:var(--off);box-shadow:inset 0 0 0 1.5px var(--off)}
+.slots .missed .t{text-decoration:line-through;text-decoration-color:var(--off);text-decoration-thickness:2px;color:var(--ink-3)}
+.slots .pending .tag{color:var(--ink-3);box-shadow:inset 0 0 0 1.5px var(--seam-2)}
+.slo{width:100%;border-collapse:collapse;font-size:14px}
+.slo th{font:600 11.5px var(--sign);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);text-align:right;padding:9px 14px;border-bottom:1px solid var(--seam);white-space:nowrap}
+.slo th:first-child,.slo td:first-child{text-align:left}
+.slo td{padding:11px 14px;border-bottom:1px solid var(--seam);text-align:right;font:500 14px var(--mono);white-space:nowrap}
+.slo td:first-child{font:600 15px var(--sign);letter-spacing:.01em;white-space:normal}
+.slo td:first-child small{display:block;font:400 13px var(--text);color:var(--ink-3);letter-spacing:0}
+.slo tr:last-child td{border-bottom:0}
+.meter{display:inline-block;position:relative;width:120px;height:10px;background:var(--frame);box-shadow:inset 0 0 0 1px var(--seam);vertical-align:-1px}
+.slo td.mt{text-align:left;padding-right:4px}
+.sl{display:none}
+.meter i{position:absolute;inset:0 auto 0 0}
+.meter b{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
+.res{font:800 12.5px var(--sign);letter-spacing:.08em;text-transform:uppercase}
+.res.met{color:var(--live)}.res.missed{color:var(--off)}.res.none{color:var(--ink-3)}
+.chart{padding:12px 14px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.ax{font:500 11.5px var(--mono);fill:var(--ink-3)}.gl{stroke:var(--seam)}
+.builds{padding:0}
+.empty{padding:16px 14px;color:var(--ink-2);font-size:14.5px}
+.foot{margin-top:14px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink-3);max-width:none}
+.foot p{margin:0;max-width:90ch}
+@media (max-width:1100px){.cams{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:900px){.top,.lower{grid-template-columns:1fr}.cams{grid-template-columns:repeat(3,minmax(0,1fr))}.detail{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.cams{grid-template-columns:repeat(2,minmax(0,1fr))}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.facts div:nth-child(2){border-right:0}.facts div:nth-child(-n+2){border-bottom:1px solid var(--seam)}.band{grid-template-columns:auto minmax(0,1fr)}.band .since{grid-column:2;text-align:left}.tile .nm{font-size:14.5px}.detail{grid-template-columns:repeat(2,minmax(0,1fr))}.slo .wide{display:none}.slo td:first-child small{display:none}.cl small{display:none}.clock{text-align:left}}
+@media (max-width:560px){.cl{grid-template-columns:1fr}.cl em{text-align:left;white-space:normal}.slo-wrap table{display:none}.sl{display:block}.sl>div{padding:11px 14px;border-bottom:1px solid var(--seam)}.sl .l1{display:flex;justify-content:space-between;gap:10px;font:600 15px var(--sign)}.sl .l2{display:flex;align-items:center;gap:10px;margin-top:6px;font:500 13px var(--mono);color:var(--ink-2)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="top">
-    <div class="brand"><div class="mark">Cloverfield<span>monitoring Cloverleaf</span></div></div>
-    <div class="meta" id="meta"></div>
+<div class="wall">
+  <header class="head">
+    <div class="id"><span class="name">Cloverfield</span><span class="sub">Watching the Cloverleaf traffic pipeline</span></div>
+    <div class="clock" id="clock"></div>
   </header>
-  <section class="verdict" id="verdict" aria-live="polite"></section>
-  <div class="grid">
-    <section class="card full" aria-labelledby="h-al"><header><h2 id="h-al">Firing now</h2><span class="sub">Rules and thresholds live in the repo; each alert clears itself when the condition ends</span></header><div class="alerts" id="alerts"></div></section>
-    <section class="card full" aria-labelledby="h-slo"><header><h2 id="h-slo">Objectives</h2><span class="sub">Bar = last 7 days, black tick = target</span></header><div class="tbl" id="slo"></div></section>
-    <section class="card" aria-labelledby="h-sch"><header><h2 id="h-sch">Did the schedule fire?</h2><span class="sub" id="sch-sub"></span></header>
-      <div class="strip" id="strip" role="img" aria-label="Each scheduled collector slot, coloured by whether a run started on time"></div>
-      <div class="legend"><span><i style="background:var(--ok)"></i>On time (bar height = delay)</span><span><i style="background:var(--warn)"></i>Late</span><span><i style="background:var(--bad)"></i>Missed</span><span><i style="background:var(--idle)"></i>Pending</span></div>
-      <div class="tbl" id="sched" style="margin-top:10px"></div></section>
-    <section class="card" aria-labelledby="h-dur"><header><h2 id="h-dur">How long each run took</h2><span class="sub">Collector runs, minutes</span></header><div class="plot" id="dur"></div>
-      <div class="legend"><span><i style="background:var(--s1)"></i>Whole run</span><span><i style="background:var(--text-3)"></i>Recording and AI step</span><span><i style="background:var(--bad)"></i>Failed run</span></div></section>
-    <section class="card full" aria-labelledby="h-cam"><header><h2 id="h-cam">Camera feeds, latest 48 collector runs</h2><span class="sub">Oldest left, newest right · % = live picture over 24 hours</span></header>
-      <div class="camgrid" id="camgrid"></div>
-      <div class="legend"><span><i style="background:var(--ok)"></i>Live picture</span><span><i style="background:var(--warn)"></i>No picture: black, placeholder card or frozen</span><span><i style="background:var(--bad)"></i>Offline or unreadable</span><span><i style="background:repeating-linear-gradient(135deg,var(--ok) 0 3px,var(--ok-bg) 3px 6px)"></i>Live, but dark (Cloverleaf excludes it from traffic numbers)</span></div></section>
-    <section class="card full" aria-labelledby="h-b"><header><h2 id="h-b">Cloverleaf's daily builds</h2><span class="sub">dbt on Snowflake, results saved by the daily workflow</span></header><div class="tbl" id="builds"></div></section>
+
+  <div class="top">
+    <section class="panel" aria-labelledby="h-v">
+      <h2 id="h-v">Status</h2>
+      <div class="verdict" id="verdict" aria-live="polite"></div>
+      <dl class="facts" id="facts"></dl>
+    </section>
+    <section class="panel" aria-labelledby="h-a">
+      <h2 id="h-a">Incidents <span id="a-sub"></span></h2>
+      <div class="board" id="alerts"></div>
+    </section>
   </div>
-  <footer>Cloverfield reads Cloverleaf from the outside: GitHub's record of every workflow run and step, and the files the collector and the daily build leave on Cloverleaf's data branch. It never touches Cloverleaf's warehouse. Every age and window is measured from when Cloverfield last read those sources. · <a href="https://github.com/evannwilsonn/cloverfield" target="_blank" rel="noopener">github.com/evannwilsonn/cloverfield</a></footer>
+
+  <section class="section" aria-labelledby="h-c">
+    <h2 id="h-c" class="panel" style="border-bottom:0">Camera wall <span id="c-sub" style="font:500 12px var(--mono);letter-spacing:0;text-transform:none"></span></h2>
+    <div class="cams" id="cams"></div>
+    <div class="key" aria-label="Key">
+      <span><i class="sw live"></i>Live picture</span>
+      <span><i class="sw dark"></i>Live, but dark (excluded from traffic numbers)</span>
+      <span><i class="sw nopic"></i>No picture: black, placeholder card or frozen</span>
+      <span><i class="sw off"></i>Offline or unreadable</span>
+      <span>Strip along each tile: its last 48 captures, newest on the right</span><span>Select a camera for its detail</span>
+    </div>
+  </section>
+
+  <div class="lower">
+    <section class="panel" aria-labelledby="h-s">
+      <h2 id="h-s">Schedule board <span id="s-sub"></span></h2>
+      <ol class="slots" id="slots"></ol>
+    </section>
+    <section class="panel" aria-labelledby="h-o">
+      <h2 id="h-o">Objectives <span>bar = last 7 days · tick = target</span></h2>
+      <div class="slo-wrap"><table class="slo" id="slo"></table><div class="sl" id="slo-m"></div></div>
+    </section>
+  </div>
+
+  <div class="lower">
+    <section class="panel" aria-labelledby="h-d">
+      <h2 id="h-d">Collector run times <span>minutes</span></h2>
+      <div class="chart" id="dur"></div>
+    </section>
+    <section class="panel" aria-labelledby="h-b">
+      <h2 id="h-b">Cloverleaf's daily builds <span>dbt on Snowflake</span></h2>
+      <div class="builds" id="builds"></div>
+    </section>
+  </div>
+
+  <footer class="foot">
+    <p>Cloverfield reads Cloverleaf from the outside: GitHub's record of every workflow run and step, and the files Cloverleaf's collector and daily build leave on its data branch. Ages are measured from when those sources were last read, not from when you opened this page. Rules and targets live in the repo's seed files.</p>
+    <a href="https://github.com/evannwilsonn/cloverfield" target="_blank" rel="noopener">github.com/evannwilsonn/cloverfield</a>
+  </footer>
 </div>
-<div class="tip" id="tip"></div>
 <script>
 (async () => {
 const D = window.CF_DATA || await (await fetch('data.json')).json();
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const pct = (v, d=0) => v == null ? '–' : (v*100).toFixed(d) + '%';
-const mins = v => v == null ? '–' : v < 1 ? Math.round(v*60) + 's' : v.toFixed(1) + 'm';
-const t = s => s ? new Date(s).toLocaleString('en-US', {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}) : '–';
-const ago = m => m == null ? '–' : m < 90 ? Math.round(m) + ' min' : (m/60).toFixed(1) + ' h';
-const tip = $('tip');
+const pct = (v, d = 0) => v == null ? '–' : (v * 100).toFixed(d) + '%';
+const clock = s => s ? new Date(s).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: false}) : '–';
+const day = s => s ? new Date(s).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'}) : '';
+const stamp = s => s ? `${day(s)} ${clock(s)}` : '–';
+const ago = m => m == null ? '–' : m < 90 ? Math.round(m) + ' min' : (m / 60).toFixed(1) + ' h';
+const mins = v => v == null ? '–' : v < 1 ? Math.round(v * 60) + ' s' : v.toFixed(1) + ' min';
 const S = D.status[0] || {};
+const pt = utc => new Date(utc + 'Z').toLocaleTimeString('en-US', {timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hour12: false});
+const ptStamp = utc => new Date(utc + 'Z').toLocaleString('en-US', {timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false}) + '\u00a0PT';
+const STATE = {live: 'live', no_picture: 'nopic', frozen: 'nopic', offline: 'off', unreadable: 'off'};
+const WORD = {live: 'Live', nopic: 'No picture', off: 'Offline'};
 
-$('meta').innerHTML = `Read sources ${t(S.extracted_at_local)} Pacific<br>from ${D.source === 'snowflake' ? 'Snowflake' : 'DuckDB'}`;
-const v = $('verdict'); v.className = 'verdict ' + (S.overall || 'healthy');
-v.innerHTML = `<div class="word">${esc(S.overall || 'unknown')}</div><p>Last camera capture <b>${ago(S.minutes_since_capture)} ago</b>. Latest collector run <b>${esc(S.last_collect_conclusion || '–')}</b> at ${t(S.last_collect_at_local)} in ${mins(S.last_collect_minutes)}, with <b>${S.cameras_live_in_last_run ?? '–'} of ${S.cameras_in_last_run ?? '–'}</b> cameras delivering a picture. ${S.last_build_at ? `Last daily build: <b>${S.last_build_tests_passed}/${S.last_build_tests}</b> tests passed.` : 'No daily build has reported yet.'} ${S.alerts ? `<b>${S.alerts}</b> alert${S.alerts > 1 ? 's' : ''} firing.` : 'Nothing firing.'}</p>`;
+$('clock').innerHTML = `Sources read <b>${clock(S.extracted_at_local)}</b> PT · ${day(S.extracted_at_local)}`;
 
-$('alerts').innerHTML = D.alerts.length ? D.alerts.map(a => `<div class="alert"><span class="pill ${a.severity === 'critical' ? 'bad' : 'warn'}">${a.severity === 'critical' ? 'Critical' : 'Warning'}</span><div><div class="what">${esc(a.alert_name)} · ${esc(a.subject)}</div><div class="d">${esc(a.detail)}</div></div><div class="since">since<br>${t(a.since_local)}</div></div>`).join('') : '<div class="calm">No alerts are firing.</div>';
+// verdict: the one-line reason comes from the most severe thing firing
+{
+  const crit = D.alerts.filter(a => a.severity === 'critical'), warn = D.alerts.filter(a => a.severity === 'warning');
+  const slotsMissed = D.slots.filter(s => s.workflow_file === 'collect.yml' && s.slot_outcome === 'missed').length;
+  let why;
+  const detail = a => a.alert_id === 'data_stale' ? `No camera capture has landed for ${ago(S.minutes_since_capture)}` : esc(a.detail);
+  if (crit.length) why = `<b>${esc(crit[0].alert_name)}.</b> ${detail(crit[0])}.`;
+  else if (warn.length) why = `<b>${esc(warn[0].alert_name)}.</b> ${esc(warn[0].detail)}.`;
+  else why = '<b>Everything is inside its limits.</b>';
+  if (slotsMissed && !/schedule/i.test(why)) why += ` The cause: GitHub has not started ${slotsMissed} of the scheduled runs since the schedule went live.`;
+  const v = $('verdict'); v.className = 'verdict ' + (S.overall || 'healthy');
+  v.innerHTML = `<div class="word"><i aria-hidden="true"></i>${esc(S.overall || 'unknown')}</div><p>${why}</p>`;
+  $('facts').innerHTML = [
+    ['Last capture', ago(S.minutes_since_capture), 'ago'],
+    ['Cameras live', `${S.cameras_live_in_last_run ?? '–'}/${S.cameras_in_last_run ?? '–'}`, 'last run'],
+    ['Last run', mins(S.last_collect_minutes), S.last_collect_conclusion || ''],
+    ['Daily build', S.last_build_at ? `${S.last_build_tests_passed}/${S.last_build_tests}` : '–', S.last_build_at ? 'tests passed' : 'not yet run'],
+  ].map(([t, v, s]) => `<div><dt>${t}</dt><dd>${v} <small>${esc(s)}</small></dd></div>`).join('');
+}
 
-// SLOs: 24h and 7d side by side
+// incident board: one message per band
+$('a-sub').textContent = D.alerts.length ? `${D.alerts.length} firing` : 'none firing';
+$('alerts').innerHTML = D.alerts.length ? D.alerts.map(a => `<div class="band ${a.severity}"><span class="sev">${a.severity === 'critical' ? 'Critical' : 'Warning'}</span><div class="msg">${esc(a.alert_name)} · ${esc(a.subject)}<small>${a.alert_id === 'data_stale' ? `Last capture ${ago(S.minutes_since_capture)} ago; fires past ${D.thresholds.stale_after_minutes} min` : esc(a.detail)}</small></div><div class="since">since ${stamp(a.since_local)}</div></div>`).join('')
+  : '<div class="calm"><b>No incidents.</b> Each rule clears itself when its condition ends, so an empty board means every check is passing right now.</div>';
+{
+  const firing = new Set(D.alerts.map(a => a.alert_id));
+  const clear = (D.rules || []).filter(r => !firing.has(r.alert_id));
+  const T = D.thresholds, now = new Date(S.extracted_at + 'Z');
+  const hoursAgo = (iso, h) => (now - new Date(iso + 'Z')) / 36e5 <= h;
+  const grid = {}; D.grid.forEach(g => (grid[g.camera_id] ||= []).push(g));
+  const streak = Math.max(0, ...Object.values(grid).map(gs => { let n = 0; gs.sort((a, b) => a.recency - b.recency).some(g => { if (g.feed_state === 'live') return true; n++; return false; }); return n; }));
+  const lb = D.builds[D.builds.length - 1];
+  const reading = {
+    data_stale: `last capture ${ago(S.minutes_since_capture)} ago · fires past ${T.stale_after_minutes} min`,
+    collect_failing: `${D.runs.filter(r => r.workflow_file === 'collect.yml' && r.conclusion === 'failure' && hoursAgo(r.created_at, T.failed_runs_window_hours)).length} failed in ${T.failed_runs_window_hours} h · fires at ${T.failed_runs_threshold}`,
+    build_failed: lb ? `last build: ${lb.tests_failed} failing tests` : 'no build has reported yet',
+    camera_down: `worst camera: ${streak} capture${streak === 1 ? '' : 's'} in a row without a picture · fires at ${T.camera_down_after_captures}`,
+    schedule_gaps: `${D.slots.filter(x => x.workflow_file === 'collect.yml' && x.slot_outcome === 'missed' && hoursAgo(x.slot_at, T.missed_slots_window_hours)).length} missed in ${T.missed_slots_window_hours} h · fires at ${T.missed_slots_threshold}`,
+  };
+  if (clear.length) $('alerts').insertAdjacentHTML('beforeend', `<div class="clear"><span class="cl-h">Not firing</span>${clear.map(r => `<span class="cl"><span><b>Clear</b>${esc(r.alert_name)}</span><em>${reading[r.alert_id] || ''}</em></span>`).join('')}</div>`);
+}
+
+// camera wall
+{
+  const grid = {}; D.grid.forEach(g => (grid[g.camera_id] ||= []).push(g));
+  const maxR = 48;
+  const cams = D.cameras.slice().sort((a, b) => (a.uptime_24h ?? 0) - (b.uptime_24h ?? 0) || a.camera_id.localeCompare(b.camera_id));
+  const live = cams.filter(c => STATE[c.current_state] === 'live').length;
+  $('c-sub').textContent = `${live} of ${cams.length} delivering a picture now · worst first`;
+  const tile = c => {
+    const st = STATE[c.current_state] || 'off', dark = st === 'live' && c.currently_dark;
+    const tape = [];
+    for (let r = maxR; r >= 1; r--) { const g = (grid[c.camera_id] || []).find(x => x.recency === r); const s = g ? STATE[g.feed_state] : 'none'; tape.push(`<i class="${s === 'live' && g.is_dark ? 'dark' : s}"></i>`); }
+    const name = (c.camera_name || c.camera_id).replace(/^(I|US|SR)-\d+\s*/, '');
+    return `<button type="button" class="tile ${st}${dark ? ' dark' : ''}" data-cam="${c.camera_id}" aria-expanded="false" aria-label="${esc(c.camera_name)}: ${WORD[st]}${dark ? ', dark' : ''}, ${pct(c.uptime_24h)} live in 24 hours">
+      <div class="screen"><span class="osd">${c.last_capture_at ? pt(c.last_capture_at) : ''}</span><span class="cam">${esc(c.camera_id.toUpperCase())} · ${esc(c.route || '')}</span><span class="nm">${esc(name)}</span>
+      <span class="st"><b>${WORD[st]}${dark ? ' · dark' : ''}</b><span>${pct(c.uptime_24h)} 24h</span></span></div>
+      <div class="tape" aria-hidden="true">${tape.join('')}</div></button>`;
+  };
+  $('cams').innerHTML = cams.map(tile).join('');
+  // signature: open a tile's detail strip in place, after the end of its row
+  let open = null;
+  $('cams').addEventListener('click', e => {
+    const t = e.target.closest('.tile'); if (!t) return;
+    $('cams').querySelector('.detail')?.remove();
+    $('cams').querySelectorAll('.tile').forEach(x => x.setAttribute('aria-expanded', 'false'));
+    if (open === t.dataset.cam) { open = null; return; }
+    open = t.dataset.cam;
+    const c = D.cameras.find(x => x.camera_id === open);
+    t.setAttribute('aria-expanded', 'true');
+    const tiles = [...$('cams').querySelectorAll('.tile')], cols = getComputedStyle($('cams')).gridTemplateColumns.split(' ').length;
+    const idx = tiles.indexOf(t), rowEnd = tiles[Math.min(tiles.length - 1, Math.floor(idx / cols) * cols + cols - 1)];
+    const d = document.createElement('dl'); d.className = 'detail'; d.style.margin = '0'; d.setAttribute('role', 'region'); d.setAttribute('aria-label', `${c.camera_name} detail`);
+    d.innerHTML = `<div style="grid-column:1/-1"><h3>${esc(c.camera_name)}<span>${esc(c.corridor || '')} · ${c.captures} captures recorded</span></h3></div>
+      <div><dt>Last live picture</dt><dd>${c.last_live_at ? ptStamp(c.last_live_at) : 'never'}</dd></div>
+      <div><dt>Live, 24 h</dt><dd>${pct(c.uptime_24h)}</dd></div>
+      <div><dt>No picture</dt><dd>${c.no_picture_captures + c.frozen_captures}</dd></div>
+      <div><dt>Offline / unreadable</dt><dd>${c.offline_captures + c.unreadable_captures}</dd></div>
+      <div><dt>Avg stream read</dt><dd>${c.avg_read_seconds == null ? '–' : c.avg_read_seconds.toFixed(1) + ' s'}</dd></div>
+      <div><dt>Avg AI analysis</dt><dd>${c.avg_analysis_seconds == null ? 'not yet logged' : c.avg_analysis_seconds.toFixed(1) + ' s'}</dd></div>`;
+    rowEnd.after(d);
+  });
+}
+
+// schedule board: missed slots stay, struck through
+{
+  const slots = D.slots.filter(s => s.workflow_file === 'collect.yml').slice(-16).reverse();
+  const wf = D.workflows.find(w => w.workflow_file === 'collect.yml'), off = wf.offset_seconds / 60 % (wf.period_seconds / 60);
+  $('s-sub').textContent = `every ${wf.period_seconds / 60} min · :${String(off).padStart(2, '0')} and :${String(off + wf.period_seconds / 60).padStart(2, '0')}`;
+  const tag = {on_time: 'On time', late: 'Late', missed: 'Missed', pending: 'Due'};
+  const what = s => s.slot_outcome === 'missed' ? 'GitHub never started this run' : s.slot_outcome === 'pending' ? 'Waiting for GitHub to start it' : `started ${s.start_delay_minutes.toFixed(1)} min after schedule · ${esc(s.conclusion || 'running')}${s.duration_minutes ? ' · ' + mins(s.duration_minutes) : ''}`;
+  $('slots').innerHTML = slots.length ? slots.map(s => `<li class="${s.slot_outcome}"><span class="t">${clock(s.slot_at_local)}</span><span class="what">${what(s)}</span><span class="tag">${tag[s.slot_outcome]}</span></li>`).join('')
+    : '<li><span class="what">The schedule has not had a slot yet.</span></li>';
+  const manual = D.runs.filter(r => r.workflow_file === 'collect.yml' && r.event !== 'schedule').length;
+  const dw = D.workflows.find(w => w.workflow_file === 'daily.yml');
+  if (dw && !D.builds.length) { const n = new Date(S.extracted_at + 'Z'); const at = new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate()) + dw.offset_seconds * 1000); if (at < n) at.setUTCDate(at.getUTCDate() + 1); $('slots').insertAdjacentHTML('afterbegin', `<li class="pending"><span class="t">${pt(at.toISOString().slice(0, 19))}</span><span class="what">Daily Snowflake build, next due</span><span class="tag">Due</span></li>`); }
+  if (manual) $('slots').insertAdjacentHTML('beforeend', `<li class="pending"><span class="t">+${manual}</span><span class="what">manual run${manual > 1 ? 's' : ''} outside the schedule (not counted against it)</span><span class="tag">Manual</span></li>`);
+}
+
+// objectives
 {
   const by = {}; D.slo.forEach(r => (by[r.slo_id] ||= {...r})[r.window_name] = r);
-  const st = r => !r || r.status === 'no data' ? '<span class="pill na">No data</span>' : r.status === 'met' ? '<span class="pill ok">Met</span>' : '<span class="pill bad">Missed</span>';
-  $('slo').innerHTML = `<table><thead><tr><th>Objective</th><th>Target</th><th>Last 24 h</th><th>Last 7 days</th><th>Events (7d)</th><th>Status (7d)</th></tr></thead><tbody>${Object.values(by).map(r => {
-    const w = r['7d'], d = r['24h'], val = w?.value;
-    const col = !w || w.status === 'no data' ? 'var(--idle)' : w.status === 'met' ? 'var(--ok)' : 'var(--bad)';
-    return `<tr><td><b>${esc(r.slo_name)}</b><span class="desc">${esc(r.description)}</span></td><td>${pct(r.target)}</td><td>${pct(d?.value, 1)}</td>
-      <td><span class="meter" aria-hidden="true"><i style="width:${(val || 0) * 100}%;background:${col}"></i><b style="left:${r.target * 100}%"></b></span>${pct(val, 1)}</td><td>${w?.events ?? 0}</td><td>${st(w)}</td></tr>`;
-  }).join('')}</tbody></table>`;
+  $('slo').innerHTML = `<thead><tr><th>Objective</th><th>Target</th><th class="wide">24 h</th><th colspan="2">7 days</th><th class="wide">Events</th><th>Result</th></tr></thead><tbody>${Object.values(by).map(r => {
+    const w = r['7d'], d = r['24h'], v = w?.value, st = !w || w.status === 'no data' ? 'none' : w.status;
+    const col = st === 'met' ? 'var(--live)' : st === 'missed' ? 'var(--off)' : 'var(--seam-2)';
+    return `<tr><td>${esc(r.slo_name)}<small>${esc(r.description)}</small></td><td>${pct(r.target)}</td><td class="wide">${pct(d?.value, 1)}</td><td class="mt"><span class="meter" aria-hidden="true"><i style="width:${(v || 0) * 100}%;background:${col}"></i><b style="left:${r.target * 100}%"></b></span></td><td>${pct(v, 1)}</td><td class="wide">${w?.events ?? 0}</td><td><span class="res ${st}">${st === 'met' ? 'Met' : st === 'missed' ? 'Missed' : 'No data'}</span></td></tr>`;
+  }).join('')}</tbody>`;
+  $('slo-m').innerHTML = Object.values(by).map(r => { const w = r['7d'], v = w?.value, st = !w || w.status === 'no data' ? 'none' : w.status, col = st === 'met' ? 'var(--live)' : st === 'missed' ? 'var(--off)' : 'var(--seam-2)';
+    return `<div><div class="l1"><span>${esc(r.slo_name)}</span><span class="res ${st}">${st === 'met' ? 'Met' : st === 'missed' ? 'Missed' : 'No data'}</span></div><div class="l2"><span class="meter" aria-hidden="true"><i style="width:${(v || 0) * 100}%;background:${col}"></i><b style="left:${r.target * 100}%"></b></span>${pct(v, 1)} · target ${pct(r.target)}</div></div>`; }).join('');
 }
 
-// Schedule strip: last 96 collect slots
+// collector run times
 {
-  const slots = D.slots.filter(s => s.workflow_file === 'collect.yml').slice(-96);
-  const maxD = Math.max(15, ...slots.map(s => s.start_delay_minutes || 0));
-  const col = o => ({on_time:'var(--ok)', late:'var(--warn)', missed:'var(--bad)', pending:'var(--idle)'})[o];
-  $('strip').innerHTML = slots.map((s, i) => `<span tabindex="0" data-i="${i}" style="height:${s.slot_outcome === 'missed' || s.slot_outcome === 'pending' ? 100 : Math.max(12, (s.start_delay_minutes || 0) / maxD * 100)}%;background:${col(s.slot_outcome)}"></span>`).join('');
-  const strip = $('strip');
-  const show = el => { const s = slots[+el.dataset.i], r = el.getBoundingClientRect(); tip.innerHTML = `<b>${t(s.slot_at_local)}</b><br>${s.slot_outcome.replace('_', ' ')}${s.start_delay_minutes != null ? ` · started ${s.start_delay_minutes.toFixed(1)} min after schedule` : ''}${s.conclusion ? ` · ${s.conclusion}` : ''}`; tip.style.left = (r.left + r.width / 2 + scrollX) + 'px'; tip.style.top = (r.top + scrollY) + 'px'; tip.classList.add('on'); };
-  strip.querySelectorAll('span').forEach(el => { el.addEventListener('mouseenter', () => show(el)); el.addEventListener('focus', () => show(el)); el.addEventListener('mouseleave', () => tip.classList.remove('on')); el.addEventListener('blur', () => tip.classList.remove('on')); });
-  $('sch-sub').textContent = `${slots.length} slot${slots.length === 1 ? '' : 's'} since the schedule went live`;
-  $('sched').innerHTML = `<table><thead><tr><th>Day (Pacific)</th><th>Slots</th><th>On time</th><th>Late</th><th>Missed</th><th>Median delay</th><th>Runs ok / all</th></tr></thead><tbody>${D.schedule_daily.slice(-7).reverse().map(d => `<tr><td>${new Date(d.local_date + 'T12:00').toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'})}</td><td>${d.slots ?? 0}</td><td>${d.on_time ?? 0}</td><td>${d.late ?? 0}</td><td>${d.missed ?? 0}</td><td>${d.median_delay_minutes == null ? '–' : d.median_delay_minutes.toFixed(1) + ' min'}</td><td>${d.succeeded ?? 0} / ${d.runs ?? 0}</td></tr>`).join('')}</tbody></table>`;
-}
-
-// Durations
-{
-  const runs = D.runs.filter(r => r.workflow_file === 'collect.yml' && r.status === 'completed').slice(-96);
+  const runs = D.runs.filter(r => r.workflow_file === 'collect.yml' && r.status === 'completed').slice(-60);
   const el = $('dur');
-  if (!runs.length) el.innerHTML = '<div class="calm">No finished runs yet.</div>';
+  if (!runs.length) el.innerHTML = '<div class="empty">No finished runs yet.</div>';
   else {
-    const W = 560, H = 200, L = 30, R = 8, T = 8, B = 22, lim = runs[0].max_duration_minutes || 15;
-    const hi = Math.max(lim * 1.2, ...runs.map(r => r.duration_minutes || 0)) * 1.05;
-    const x = i => runs.length === 1 ? (L + W - R) / 2 : L + i / (runs.length - 1) * (W - L - R), y = m => T + (1 - m / hi) * (H - T - B);
+    const W = Math.max(300, el.clientWidth - 28), H = 190, L = 30, R = 10, T = 12, B = 24, lim = runs[0].max_duration_minutes || 15;
+    const hi = Math.max(lim * 1.25, ...runs.map(r => r.duration_minutes || 0));
+    const bw = Math.min(28, (W - L - R) / runs.length - 4), x = i => L + (i + .5) * (W - L - R) / runs.length, y = m => T + (1 - m / hi) * (H - T - B);
     let g = '';
-    for (let m = 0; m <= hi; m += 5) g += `<line class="gridl" x1="${L}" x2="${W - R}" y1="${y(m)}" y2="${y(m)}"/><text class="ax" x="${L - 5}" y="${y(m) + 4}" text-anchor="end">${m}</text>`;
-    g += `<line x1="${L}" x2="${W - R}" y1="${y(lim)}" y2="${y(lim)}" stroke="var(--warn)" stroke-dasharray="4 4"/><text class="ax" x="${W - R}" y="${y(lim) - 5}" text-anchor="end">${lim}-min limit</text>`;
-    const line = k => { let d = ''; runs.forEach((r, i) => { if (r[k] != null) d += `${d ? 'L' : 'M'}${x(i).toFixed(1)},${y(r[k]).toFixed(1)}`; }); return d; };
-    g += `<path d="${line('capture_minutes')}" fill="none" stroke="var(--text-3)" stroke-width="1.5"/><path d="${line('duration_minutes')}" fill="none" stroke="var(--s1)" stroke-width="2"/>`;
-    g += runs.map((r, i) => `<circle cx="${x(i)}" cy="${y(r.duration_minutes)}" r="4" fill="${r.conclusion === 'success' ? 'var(--s1)' : 'var(--bad)'}" stroke="var(--surface)" stroke-width="2" data-i="${i}"/>`).join('');
-    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Collector run durations in minutes">${g}</svg>`;
-    const svg = el.querySelector('svg');
-    svg.querySelectorAll('circle').forEach(c => { c.addEventListener('mouseenter', () => { const r = runs[+c.dataset.i], b = svg.getBoundingClientRect(); tip.innerHTML = `<b>${t(r.created_at_local)}</b> · ${esc(r.event === 'schedule' ? 'scheduled' : 'manual')}<br>${r.conclusion} in ${mins(r.duration_minutes)} · install ${mins(r.install_minutes)} · record+AI ${mins(r.capture_minutes)}${r.cameras_attempted ? `<br>${r.cameras_live}/${r.cameras_attempted} cameras with a picture` : ''}`; tip.style.left = (b.left + +c.getAttribute('cx') / W * b.width + scrollX) + 'px'; tip.style.top = (b.top + +c.getAttribute('cy') / H * b.height + scrollY) + 'px'; tip.classList.add('on'); }); c.addEventListener('mouseleave', () => tip.classList.remove('on')); });
+    for (let m = 0; m <= hi; m += 5) g += `<line class="gl" x1="${L}" x2="${W - R}" y1="${y(m)}" y2="${y(m)}"/><text class="ax" x="${L - 6}" y="${y(m) + 4}" text-anchor="end">${m}</text>`;
+    g += `<line x1="${L}" x2="${W - R}" y1="${y(lim)}" y2="${y(lim)}" stroke="var(--cal)" stroke-width="1.5" stroke-dasharray="5 4"/><text class="ax" x="${W - R}" y="${y(lim) - 6}" text-anchor="end" style="fill:var(--cal)">${lim}-min limit</text>`;
+    runs.forEach((r, i) => {
+      const ok = r.conclusion === 'success', xx = x(i) - bw / 2;
+      const segs = [['install_minutes', 'var(--seam-2)'], ['capture_minutes', ok ? 'var(--live)' : 'var(--off)'], ['push_minutes', 'var(--ink-3)']];
+      let acc = 0;
+      segs.forEach(([k, c]) => { const v = r[k] || 0; if (!v) return; g += `<rect x="${xx}" y="${y(acc + v)}" width="${bw}" height="${Math.max(1, y(acc) - y(acc + v))}" fill="${c}"/>`; acc += v; });
+      const rest = (r.duration_minutes || 0) - acc; if (rest > 0.02) g += `<rect x="${xx}" y="${y(acc + rest)}" width="${bw}" height="${Math.max(1, y(acc) - y(acc + rest))}" fill="var(--frame)" stroke="var(--seam-2)"/>`;
+      g += `<text class="ax" x="${x(i)}" y="${H - 6}" text-anchor="middle">${clock(r.created_at_local)}</text>`;
+      if (!ok) g += `<text class="ax" x="${x(i)}" y="${y(r.duration_minutes) - 5}" text-anchor="middle" style="fill:var(--off)">failed</text>`;
+    });
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Collector run durations by step">${g}</svg><div class="key" style="border:0;padding:8px 0 0;background:none"><span><i class="sw" style="background:var(--seam-2)"></i>Install</span><span><i class="sw" style="background:var(--live)"></i>Record video + AI</span><span><i class="sw" style="background:var(--ink-3)"></i>Save to data branch</span><span><i class="sw" style="background:var(--off)"></i>Failed step</span></div>`;
   }
 }
 
-// Camera grid
-{
-  const by = {}; D.grid.forEach(g => (by[g.camera_id] ||= []).push(g));
-  const up = Object.fromEntries(D.cameras.map(c => [c.camera_id, c]));
-  const maxR = Math.max(1, ...D.grid.map(g => g.recency));
-  const col = s => s === 'live' ? 'var(--ok)' : s === 'offline' || s === 'unreadable' ? 'var(--bad)' : 'var(--warn)';
-  $('camgrid').innerHTML = Object.keys(by).sort((a, b) => (up[a]?.uptime_24h ?? 0) - (up[b]?.uptime_24h ?? 0)).map(id => {
-    const cells = [];
-    for (let r = maxR; r >= 1; r--) { const g = by[id].find(x => x.recency === r); cells.push(g ? `<span title="${esc(t(g.run_at_local))}: ${esc(g.feed_state.replace('_', ' '))}${g.is_dark ? ' (dark)' : ''}" style="background:${g.is_dark && g.feed_state === 'live' ? 'repeating-linear-gradient(135deg,var(--ok) 0 3px,var(--ok-bg) 3px 6px)' : col(g.feed_state)}"></span>` : '<span style="background:var(--surface-2)"></span>'); }
-    return `<span class="id">${esc(id)}</span><div class="cells">${cells.join('')}</div><span class="pct">${pct(up[id]?.uptime_24h)}</span>`;
-  }).join('');
-}
-
-// Builds
-$('builds').innerHTML = D.builds.length ? `<table><thead><tr><th>Built (Pacific)</th><th>Models</th><th>Tests passed</th><th>Warnings</th><th>Failed</th><th>Accuracy gate</th><th>Time</th></tr></thead><tbody>${D.builds.slice().reverse().map(b => `<tr><td>${t(b.generated_at_local)}</td><td>${b.models - b.model_errors}/${b.models}</td><td>${b.tests_passed}/${b.tests}</td><td>${b.tests_warned}</td><td>${b.tests_failed}</td><td>${b.accuracy_gate === 'pass' ? '<span class="pill ok">Pass</span>' : b.accuracy_gate ? '<span class="pill bad">' + esc(b.accuracy_gate) + '</span>' : '–'}</td><td>${mins(b.build_seconds / 60)}</td></tr>`).join('')}</tbody></table>` : '<div class="calm">No daily build has run yet. The first one runs at 5:10 AM Pacific once Cloverleaf has its Snowflake secrets.</div>';
+// builds
+$('builds').innerHTML = D.builds.length ? `<table class="slo"><thead><tr><th>Built</th><th>Models</th><th>Tests</th><th>Failed</th><th>Accuracy gate</th></tr></thead><tbody>${D.builds.slice().reverse().map(b => `<tr><td>${stamp(b.generated_at_local)}</td><td>${b.models - b.model_errors}/${b.models}</td><td>${b.tests_passed}/${b.tests}</td><td>${b.tests_failed}</td><td><span class="res ${b.accuracy_gate === 'pass' ? 'met' : 'missed'}">${esc(b.accuracy_gate || '–')}</span></td></tr>`).join('')}</tbody></table>`
+  : `<div class="empty">No daily build has reported yet. When Cloverleaf's daily Snowflake build runs, its model and test results land here, including the detection-accuracy gate.</div>`;
 })();
 </script>
 </body>

@@ -7,7 +7,11 @@ latest as (
 )
 select
     c.camera_id,
+    max(cam.camera_name) as camera_name,
+    max(cam.corridor)    as corridor,
+    max(cam.route)       as route,
     l.current_state,
+    max(case when c.captured_at = l.last_capture_at then cast(c.is_dark as integer) end) = 1 as currently_dark,
     l.last_capture_at,
     max(case when c.feed_state = 'live' then c.captured_at end)                                   as last_live_at,
     avg(case when c.captured_at > {{ hours_before('n.extracted_at', 24) }} then case when c.feed_state = 'live' then 1.0 else 0.0 end end) as uptime_24h,
@@ -21,4 +25,5 @@ select
     avg(c.analysis_seconds)                                      as avg_analysis_seconds
 from c cross join n
 join latest l on l.camera_id = c.camera_id
+left join {{ ref('stg_cameras') }} cam on cam.camera_id = c.camera_id
 group by c.camera_id, l.current_state, l.last_capture_at

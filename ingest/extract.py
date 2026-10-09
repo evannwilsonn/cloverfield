@@ -5,6 +5,7 @@ Extract everything Cloverfield monitors about Cloverleaf, as it is, into data/ra
   github/jobs/<run>.json    job and step timings for each finished run (fetched once, then kept)
   cloverleaf/captures/...   the collector's per-camera output (Cloverleaf's `data` branch)
   cloverleaf/ops/dbt/...    run_results.json from each of Cloverleaf's daily dbt builds
+  cloverleaf/cameras.csv    the camera list (names, corridors) from Cloverleaf's main branch
   _extract.json             when this extract ran, what it read, and a SHA-256 of every file
 
 Reads public data only. GITHUB_TOKEN (set automatically in Actions) raises the API rate limit.
@@ -84,6 +85,9 @@ def main() -> None:
             new_jobs += 1
 
     n_files = fetch_data_branch(repo)
+    # camera names and corridors live in the monitored repo's seed file
+    with urllib.request.urlopen(f"https://raw.githubusercontent.com/{repo}/main/seeds/cameras.csv", timeout=30) as r:
+        (RAW / "cloverleaf" / "cameras.csv").write_bytes(r.read())
 
     files = sorted(p for p in RAW.rglob("*") if p.is_file() and p.name != "_extract.json")
     manifest = {

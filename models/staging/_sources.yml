@@ -13,3 +13,5 @@ sources:
     tables:
       - name: captures
       - name: dbt_results
+      - name: cameras
+        description: Camera list copied from Cloverleaf's seeds/cameras.csv.

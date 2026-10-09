@@ -26,6 +26,7 @@ TABLES = {
     "grid": "select camera_id, recency, run_at_local, feed_state, is_dark from reporting.rpt_camera_grid order by camera_id, recency",
     "builds": "select * from reporting.rpt_dbt_builds order by generated_at",
     "slos_ref": "select * from reference.slos",
+    "rules": "select * from reference.alert_rules",
     "workflows": "select * from reference.monitored_workflows",
 }
 
@@ -67,7 +68,9 @@ def main() -> None:
     ap.add_argument("--target", choices=["duckdb", "snowflake"], default="duckdb")
     args = ap.parse_args()
     run = runner(args.target)
-    out = {"generated": datetime.now().isoformat(timespec="seconds"), "source": args.target}
+    import yaml
+    out = {"generated": datetime.now().isoformat(timespec="seconds"), "source": args.target,
+           "thresholds": yaml.safe_load((ROOT / "dbt_project.yml").read_text())["vars"]}
     for key, sql in TABLES.items():
         cols, rows = run(sql)
         out[key] = [{c: clean(v) for c, v in zip(cols, r)} for r in rows]

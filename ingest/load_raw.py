@@ -65,11 +65,15 @@ def main() -> None:
         results += [{**meta, "unique_id": r["unique_id"], "status": r["status"], "execution_time": r.get("execution_time"),
                      "failures": r.get("failures"), "message": (r.get("message") or "")[:500],
                      "_source_file": f"cloverleaf/ops/dbt/{f.name}"} for r in d["results"]]
+    con.execute(f"""create or replace table raw_cloverleaf.cameras as
+        select *, 'cloverleaf/cameras.csv' as _source_file, cast('{loaded_at}' as timestamp) as _loaded_at
+        from read_csv('{(RAW / "cloverleaf" / "cameras.csv").as_posix()}', header = true, all_varchar = true)""")
     counts = {
         "raw_github.workflow_runs": rows_table(con, "raw_github.workflow_runs", runs, loaded_at),
         "raw_github.jobs": rows_table(con, "raw_github.jobs", jobs, loaded_at),
         "raw_github.job_steps": rows_table(con, "raw_github.job_steps", steps, loaded_at),
         "raw_cloverleaf.captures": rows_table(con, "raw_cloverleaf.captures", captures, loaded_at),
+        "raw_cloverleaf.cameras": con.execute("select count(*) from raw_cloverleaf.cameras").fetchone()[0],
         "raw_cloverleaf.dbt_results": rows_table(con, "raw_cloverleaf.dbt_results", results, loaded_at),
         "raw_github.extract_log": rows_table(con, "raw_github.extract_log",
                                              [{"extracted_at": manifest["extracted_at"], "files": len(manifest["files"]),
